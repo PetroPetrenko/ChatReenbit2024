@@ -1,0 +1,112 @@
+.searchContainer {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: #f3f4f6;
+  border-radius: 12px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.searchContainer:hover {
+  background-color: #e5e7eb;
+}
+
+.searchContainer.focused {
+  background-color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.searchIcon {
+  color: #9ca3af;
+  margin-right: 12px;
+  transition: color 0.3s ease;
+}
+
+.focused .searchIcon {
+  color: #3b82f6;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #1f2937;
+  outline: none;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+  transition: color 0.3s ease;
+}
+
+.focused .searchInput::placeholder {
+  color: #6b7280;
+}
+
+.clearButton {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  color: #9ca3af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.clearButton:hover {
+  color: #6b7280;
+  background-color: rgba(107, 114, 128, 0.1);
+}
+
+/* Animation for search icon */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.focused .searchIcon {
+  animation: pulse 0.3s ease-in-out;
+}
+
+/* Animation for clear button */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.clearButton {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .searchContainer {
+    max-width: 100%;
+  }
+}

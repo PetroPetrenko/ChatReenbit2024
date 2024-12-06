@@ -1,0 +1,155 @@
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.toggleButton {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  border-radius: 34px;
+  background-color: #e5e7eb;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.toggleButton.enabled {
+  background-color: #10b981;
+}
+
+.toggleButton.disabled {
+  background-color: #ef4444;
+}
+
+.toggleSlider {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.enabled .toggleSlider {
+  transform: translateX(28px);
+}
+
+.status {
+  font-size: 14px;
+  font-weight: 500;
+  color: #10b981;
+  transition: color 0.3s ease;
+}
+
+.status.disabled {
+  color: #ef4444;
+}
+
+.disabledText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.disabledText::before {
+  content: "•";
+  font-size: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Hover effects */
+.toggleButton:hover {
+  opacity: 0.9;
+}
+
+.toggleButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .toggleContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: #e5e7eb;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  padding: 2px;
+}
+
+.toggle.enabled {
+  background-color: #3b82f6;
+}
+
+.toggle.disabled {
+  background-color: #ef4444;
+}
+
+.indicator {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  left: 2px;
+  top: 2px;
+}
+
+.enabled .indicator {
+  transform: translateX(24px);
+}
+
+.label {
+  font-size: 14px;
+  color: #6b7280;
+  user-select: none;
+}
+
+.enabled + .label {
+  color: #3b82f6;
+}
+
+.disabled + .label {
+  color: #ef4444;
+}

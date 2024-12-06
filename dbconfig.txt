@@ -1,0 +1,11 @@
+
+login: petrpetrenko2023
+
+password: XHGeCv6TSgs6u1k6
+
+
+Database Name: ChatReact
+
+
+Collection Name: testChat
+
