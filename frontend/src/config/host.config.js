@@ -19,14 +19,14 @@ const hostConfig = {
   },
   production: {
     frontend: {
-      host: import.meta.env.VITE_FRONTEND_URL || 'your-frontend-url.vercel.app',
+      host: import.meta.env.VITE_FRONTEND_URL || 'https://chat-reenbit2024-9pdv.vercel.app/',
       protocol: 'https',
       get url() {
         return `${this.protocol}://${this.host}`;
       }
     },
     backend: {
-      host: import.meta.env.VITE_API_URL || 'your-backend-url.vercel.app',
+      host: import.meta.env.VITE_API_URL || 'https://chat-reenbit2024-m64f-n95u8gec4-pedros-projects-06014566.vercel.app',
       protocol: 'https',
       get url() {
         return `${this.protocol}://${this.host}`;
