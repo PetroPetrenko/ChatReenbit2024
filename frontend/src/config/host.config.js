@@ -26,7 +26,7 @@ const hostConfig = {
       }
     },
     backend: {
-      host: import.meta.env.VITE_API_URL || 'https://chat-reenbit2024-m64f-n95u8gec4-pedros-projects-06014566.vercel.app',
+      host: import.meta.env.VITE_API_URL || 'https://chat-reenbit2024-m64f.vercel.app',
       protocol: 'https',
       get url() {
         return `${this.protocol}://${this.host}`;
