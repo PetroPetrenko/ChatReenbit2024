@@ -26,7 +26,7 @@ const hostConfig = {
       }
     },
     backend: {
-      host: import.meta.env.VITE_API_URL || 'https://chat-reenbit2024-m64f.vercel.app',
+      host: import.meta.env.VITE_API_URL || 'https://chat-reenbit2024-tgnx.vercel.app/?vercelToolbarCode=EZEXpaz28BjDgFp',
       protocol: 'https',
       get url() {
         return `${this.protocol}://${this.host}`;
