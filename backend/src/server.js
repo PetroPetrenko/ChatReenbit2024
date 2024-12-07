@@ -17,7 +17,7 @@ const server = http.createServer(app);
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+  origin: process.env.FRONTEND_URL || 'https://chat-reenbit2024-9pdv.vercel.app'
 }));
 app.use(express.json());
 app.use('/api', chatRoutes);
@@ -26,7 +26,7 @@ app.use('/api/auth', authRoutes);
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://chat-reenbit2024-9pdv.vercel.app",
     methods: ["GET", "POST"],
   },
 });
