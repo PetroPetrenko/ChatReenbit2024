@@ -1,6 +1,6 @@
 import express from 'express';
 import { Chat } from '../models/Chat.js';
-import { Message } from '../models/message.js';
+import { Message } from '../models/Message.js';
 
 const router = express.Router();
 
