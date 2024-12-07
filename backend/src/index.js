@@ -20,14 +20,14 @@ const httpServer = createServer(app);
 // Socket.IO setup with CORS
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "https://chat-reenbit2024-9pdv.vercel.app",
     methods: ["GET", "POST"]
   }
 });
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: process.env.FRONTEND_URL || "https://chat-reenbit2024-9pdv.vercel.app",
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
