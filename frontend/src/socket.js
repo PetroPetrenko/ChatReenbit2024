@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
 import { socketUrl } from './config/host.config';
 
-const SOCKET_URL = socketUrl;
+//const SOCKET_URL = socketUrl;
+const SOCKET_URL = 'https://chat-reenbit2024-9pdv.vercel.app'
 
 export const socket = io(SOCKET_URL, {
   autoConnect: true,
