@@ -1,5 +1,6 @@
 import { Message } from '../models/Message.js';
 import { Chat } from '../models/Chat.js';
+import autoMessageManager from './autoMessages.js';
 
 export const setupSocketHandlers = (io) => {
   const connectedUsers = new Set();
@@ -34,6 +35,63 @@ export const setupSocketHandlers = (io) => {
       socket.emit('pong');
     });
 
+    // Запуск автоматических сообщений
+    socket.on('start_auto_messages', (chatId) => {
+      console.log(`🤖 ПОДРОБНАЯ ОТЛАДКА АВТО-СООБЩЕНИЙ:`, {
+        chatId,
+        socketRooms: Array.from(socket.rooms),
+        currentSocketId: socket.id,
+        connectedUsers: socket.adapter?.sids ? Array.from(socket.adapter.sids.keys()) : 'Недоступно'
+      });
+
+      // Принудительное подключение к комнате чата
+      if (!socket.rooms.has(chatId)) {
+        socket.join(chatId);
+        console.log(`🚪 Автоматическое присоединение к комнате ${chatId}`);
+      }
+      
+      try {
+        // Расширенная отладка запуска авто-сообщений
+        console.log(`🔍 Детали запуска для чата ${chatId}:`, {
+          timestamp: new Date().toISOString(),
+          socketConnected: socket.connected,
+          ioAvailable: !!io
+        });
+
+        autoMessageManager.startAutoMessages(chatId, io);
+        
+        // Расширенное подтверждение
+        io.to(chatId).emit('auto_messages_started', {
+          chatId, 
+          timestamp: new Date().toISOString(),
+          message: 'Авто-сообщения успешно запущены'
+        });
+        
+        console.log(`✅ Авто-сообщения запущены и событие отправлено для чата ${chatId}`);
+      } catch (error) {
+        console.error(`❌ КРИТИЧЕСКАЯ ОШИБКА при запуске авто-сообщений:`, {
+          chatId,
+          errorName: error.name,
+          errorMessage: error.message,
+          errorStack: error.stack
+        });
+
+        socket.emit('auto_messages_error', { 
+          chatId, 
+          message: 'Не удалось запустить авто-сообщения',
+          error: error.toString(),
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    // Остановка автоматических сообщений
+    socket.on('stop_auto_messages', (chatId) => {
+      console.log(`Received request to stop auto messages for chat ${chatId}`);
+      autoMessageManager.stopAutoMessages(chatId);
+      io.to(chatId).emit('auto_messages_stopped', chatId);
+    });
+
     // Send message
     socket.on('send_message', async (messageData) => {
       try {
@@ -56,33 +114,6 @@ export const setupSocketHandlers = (io) => {
           text,
           timestamp: message.timestamp
         });
-
-        // Send auto-response after 3 seconds
-        setTimeout(async () => {
-          try {
-            const response = await fetch('https://api.quotable.io/random');
-            const data = await response.json();
-            
-            const autoMessage = new Message({
-              chatId,
-              author: 'Bot',
-              text: data.content,
-              timestamp: new Date()
-            });
-            await autoMessage.save();
-
-            io.to(chatId).emit('receive_message', {
-              _id: autoMessage._id,
-              chatId,
-              author: 'Bot',
-              text: data.content,
-              timestamp: autoMessage.timestamp
-            });
-          } catch (error) {
-            console.error('Error sending auto-response:', error);
-            socket.emit('error', { message: 'Error sending auto-response' });
-          }
-        }, 3000);
 
       } catch (error) {
         console.error('Error sending message:', error);

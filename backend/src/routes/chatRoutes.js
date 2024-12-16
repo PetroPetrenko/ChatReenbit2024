@@ -7,11 +7,14 @@ const router = express.Router();
 // Get all chats
 router.get('/chats', async (req, res) => {
   try {
-    const chats = await Chat.find();
+    const chats = await Chat.find().sort({ lastMessageDate: -1 });
     res.json(chats);
   } catch (error) {
     console.error('Error fetching chats:', error);
-    res.status(500).json({ error: 'Failed to fetch chats' });
+    res.status(500).json({ 
+      error: 'Failed to fetch chats',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -36,35 +39,57 @@ router.post('/chats', async (req, res) => {
     res.status(201).json(chat);
   } catch (error) {
     console.error('Error creating chat:', error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        error: 'Validation error', 
-        details: error.message 
-      });
-    }
-    res.status(500).json({ error: 'Failed to create chat' });
+    res.status(500).json({ 
+      error: 'Failed to create chat',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-// Get chat messages
-router.get('/chats/:chatId/messages', async (req, res) => {
+// Get chat by ID
+router.get('/chats/:id', async (req, res) => {
   try {
-    const messages = await Message.find({ chatId: req.params.chatId })
+    const chat = await Chat.findById(req.params.id);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat not found' });
+    }
+    res.json(chat);
+  } catch (error) {
+    console.error('Error fetching chat:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch chat',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Get messages for a chat
+router.get('/chats/:id/messages', async (req, res) => {
+  try {
+    const messages = await Message.find({ chatId: req.params.id })
       .sort({ timestamp: 1 });
     res.json(messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
-    res.status(500).json({ error: 'Failed to fetch messages' });
+    res.status(500).json({ 
+      error: 'Failed to fetch messages',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
 // Add message to chat
-router.post('/chats/:chatId/messages', async (req, res) => {
+router.post('/chats/:id/messages', async (req, res) => {
   try {
-    const { chatId } = req.params;
     const { text, sender } = req.body;
+    const chatId = req.params.id;
 
-    // Validate chat exists
+    if (!text || !sender) {
+      return res.status(400).json({ 
+        error: 'Text and sender are required' 
+      });
+    }
+
     const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({ error: 'Chat not found' });
@@ -79,64 +104,60 @@ router.post('/chats/:chatId/messages', async (req, res) => {
 
     await message.save();
 
-    // Update chat's last message
+    // Update last message in chat
     chat.lastMessage = text;
-    chat.lastMessageDate = new Date();
+    chat.lastMessageDate = message.timestamp;
     await chat.save();
 
     res.status(201).json(message);
   } catch (error) {
     console.error('Error adding message:', error);
-    res.status(500).json({ error: 'Failed to add message' });
+    res.status(500).json({ 
+      error: 'Failed to add message',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-// Get bot response
-router.post('/chats/:chatId/bot-response', async (req, res) => {
+// Update a message
+router.put('/messages/:id', async (req, res) => {
   try {
-    const { chatId } = req.params;
-    const { userMessage } = req.body;
+    const { text } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ 
+        error: 'Message text is required' 
+      });
+    }
 
-    // Simple bot response logic
-    const botMessage = new Message({
-      chatId,
-      text: `Bot response to: ${userMessage}`,
-      sender: 'bot',
-      timestamp: new Date()
-    });
+    const message = await Message.findByIdAndUpdate(
+      req.params.id, 
+      { 
+        text, 
+        edited: true,
+        editedAt: new Date() 
+      }, 
+      { new: true }
+    );
 
-    await botMessage.save();
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
 
-    // Update chat's last message
-    const chat = await Chat.findById(chatId);
-    if (chat) {
-      chat.lastMessage = botMessage.text;
-      chat.lastMessageDate = new Date();
+    // Update last message in chat if this is the last message
+    const chat = await Chat.findById(message.chatId);
+    if (chat && chat.lastMessage === message.text) {
+      chat.lastMessage = text;
       await chat.save();
     }
 
-    res.status(201).json(botMessage);
+    res.json(message);
   } catch (error) {
-    console.error('Error generating bot response:', error);
-    res.status(500).json({ error: 'Failed to generate bot response' });
-  }
-});
-
-// Update chat
-router.put('/chats/:id', async (req, res) => {
-  try {
-    const chat = await Chat.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!chat) {
-      return res.status(404).json({ error: 'Chat not found' });
-    }
-    res.json(chat);
-  } catch (error) {
-    console.error('Error updating chat:', error);
-    res.status(500).json({ error: 'Failed to update chat' });
+    console.error('Error updating message:', error);
+    res.status(500).json({ 
+      error: 'Failed to update message',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -147,12 +168,17 @@ router.delete('/chats/:id', async (req, res) => {
     if (!chat) {
       return res.status(404).json({ error: 'Chat not found' });
     }
-    // Delete all messages associated with this chat
+
+    // Delete all messages in chat
     await Message.deleteMany({ chatId: req.params.id });
+
     res.json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);
-    res.status(500).json({ error: 'Failed to delete chat' });
+    res.status(500).json({ 
+      error: 'Failed to delete chat',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
