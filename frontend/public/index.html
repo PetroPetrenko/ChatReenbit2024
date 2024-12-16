@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QuoteChat - Connect and Share</title>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography" defer></script>
+    <script src="https://unpkg.com/unlazy@0.11.3/dist/unlazy.with-hashing.iife.js" defer></script>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>">
+    
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="QuoteChat: Your personal messaging platform">
+    <meta name="keywords" content="chat, messaging, communication, quotes">
+    
+    <style type="text/css">
+      /* Smooth scrolling and custom scrollbar */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(240, 5.9%, 50%) hsl(240, 4.8%, 95.9%);
+      }
+      *::-webkit-scrollbar {
+        width: 8px;
+      }
+      *::-webkit-scrollbar-track {
+        background: hsl(240, 4.8%, 95.9%);
+      }
+      *::-webkit-scrollbar-thumb {
+        background-color: hsl(240, 5.9%, 50%);
+        border-radius: 20px;
+      }
+    </style>
+    
+    <script type="text/javascript">
+      window.tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              border: 'hsl(var(--border))',
+              input: 'hsl(var(--input))',
+              ring: 'hsl(var(--ring))',
+              background: 'hsl(var(--background))',
+              foreground: 'hsl(var(--foreground))',
+              primary: {
+                DEFAULT: 'hsl(var(--primary))',
+                foreground: 'hsl(var(--primary-foreground))'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--secondary))',
+                foreground: 'hsl(var(--secondary-foreground))'
+              },
+              destructive: {
+                DEFAULT: 'hsl(var(--destructive))',
+                foreground: 'hsl(var(--destructive-foreground))'
+              },
+              muted: {
+                DEFAULT: 'hsl(var(--muted))',
+                foreground: 'hsl(var(--muted-foreground))'
+              },
+              accent: {
+                DEFAULT: 'hsl(var(--accent))',
+                foreground: 'hsl(var(--accent-foreground))'
+              },
+              popover: {
+                DEFAULT: 'hsl(var(--popover))',
+                foreground: 'hsl(var(--popover-foreground))'
+              },
+              card: {
+                DEFAULT: 'hsl(var(--card))',
+                foreground: 'hsl(var(--card-foreground))'
+              },
+            },
+            keyframes: {
+              'fade-in': {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' }
+              },
+              'slide-up': {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' }
+              }
+            },
+            animation: {
+              'fade-in': 'fade-in 0.5s ease-out',
+              'slide-up': 'slide-up 0.5s ease-out'
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="antialiased bg-background text-foreground selection:bg-primary/20">
+    <div id="app" class="flex flex-col h-screen max-h-screen overflow-hidden">
+      <header class="flex items-center justify-between border-b border-border p-4 animate-slide-up">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-xl font-bold text-primary">QuoteChat</h1>
+          <input 
+            type="text" 
+            placeholder="Search chats..." 
+            class="border border-border rounded-lg p-2 w-64 focus:ring-2 focus:ring-primary/50 transition-all"
+          />
+        </div>
+        <div class="flex items-center space-x-4">
+          <button 
+            id="theme-toggle" 
+            class="p-2 rounded-full hover:bg-muted transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            🌓
+          </button>
+          <button 
+            id="login-btn" 
+            class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Log In
+          </button>
+        </div>
+      </header>
+
+      <main class="flex flex-1 overflow-hidden">
+        <aside class="w-full md:w-1/3 border-r border-border p-4 overflow-y-auto">
+          <h2 class="text-lg font-semibold text-muted-foreground mb-4">Recent Chats</h2>
+          <ul id="chat-list" class="space-y-2">
+            <li class="chat-item flex items-center p-3 hover:bg-muted rounded-lg cursor-pointer transition-colors group">
+              <div class="flex-shrink-0 mr-4">
+                <img 
+                  src="https://ui-avatars.com/api/?name=Alice+Freeman&background=random" 
+                  alt="Alice Freeman" 
+                  class="w-10 h-10 rounded-full object-cover group-hover:scale-110 transition-transform"
+                />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center">
+                  <h3 class="font-semibold text-foreground truncate">Alice Freeman</h3>
+                  <span class="text-xs text-muted-foreground">Aug 17</span>
+                </div>
+                <p class="text-sm text-muted-foreground truncate">How was your meeting?</p>
+              </div>
+            </li>
+          </ul>
+        </aside>
+
+        <section class="hidden md:flex flex-1 p-4">
+          <div class="w-full bg-card rounded-lg shadow-md flex flex-col">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <img 
+                  src="https://ui-avatars.com/api/?name=Alice+Freeman&background=random" 
+                  alt="Alice Freeman" 
+                  class="w-10 h-10 rounded-full"
+                />
+                <h2 class="font-semibold text-lg">Alice Freeman</h2>
+              </div>
+              <div class="text-muted-foreground text-sm">Active now</div>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+              <div class="message incoming bg-muted p-3 rounded-lg max-w-[80%]">
+                <p>Hi, how are you?</p>
+                <span class="text-xs text-muted-foreground block mt-1">7:43 AM</span>
+              </div>
+              <div class="message outgoing bg-primary/10 p-3 rounded-lg max-w-[80%] self-end text-right ml-auto">
+                <p>Not bad. What about you?</p>
+                <span class="text-xs text-muted-foreground block mt-1">7:45 AM</span>
+              </div>
+            </div>
+
+            <div class="border-t border-border p-4 flex items-center space-x-2">
+              <input 
+                type="text" 
+                placeholder="Type a message..." 
+                class="flex-1 p-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/50 transition-all"
+              />
+              <button class="bg-primary text-primary-foreground p-2 rounded-lg hover:bg-primary/90 transition-colors">
+                Send
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Performance and UX improvements
+      document.addEventListener('DOMContentLoaded', () => {
+        // Lazy load images
+        const images = document.querySelectorAll('img');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src || img.src;
+              img.classList.remove('blur-sm');
+              observer.unobserve(img);
+            }
+          });
+        }, { rootMargin: '50px' });
+
+        images.forEach(img => {
+          img.classList.add('blur-sm', 'opacity-70');
+          imageObserver.observe(img);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          // Ctrl+K to focus search
+          if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            document.querySelector('input[placeholder="Search chats..."]').focus();
+          }
+          
+          // Ctrl+/ to toggle theme
+          if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            document.getElementById('theme-toggle').click();
+          }
+        });
+
+        // Progressive enhancement for send button
+        const messageInput = document.querySelector('input[placeholder="Type a message..."]');
+        const sendButton = document.querySelector('button:contains("Send")');
+        
+        if (messageInput && sendButton) {
+          sendButton.disabled = true;
+          messageInput.addEventListener('input', () => {
+            sendButton.disabled = messageInput.value.trim() === '';
+          });
+        }
+
+        // Performance monitoring
+        const perfEntries = performance.getEntriesByType('resource');
+        const slowResources = perfEntries.filter(entry => entry.responseEnd - entry.startTime > 1000);
+        if (slowResources.length > 0) {
+          console.warn('Slow resources detected:', slowResources);
+        }
+      });
+
+      // Enhanced theme toggle with system preference
+      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+      const htmlElement = document.documentElement;
+
+      function setTheme(theme) {
+        if (theme === 'dark' || (theme === 'system' && prefersDarkScheme.matches)) {
+          htmlElement.classList.add('dark');
+        } else {
+          htmlElement.classList.remove('dark');
+        }
+      }
+
+      // Initialize theme
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      setTheme(savedTheme);
+
+      // Theme toggle with expanded options
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeOptions = ['light', 'dark', 'system'];
+      let currentThemeIndex = themeOptions.indexOf(savedTheme);
+
+      themeToggle.addEventListener('click', () => {
+        currentThemeIndex = (currentThemeIndex + 1) % themeOptions.length;
+        const newTheme = themeOptions[currentThemeIndex];
+        
+        localStorage.setItem('theme', newTheme);
+        setTheme(newTheme);
+
+        // Visual feedback
+        themeToggle.textContent = {
+          'light': '☀️',
+          'dark': '🌙',
+          'system': '🌓'
+        }[newTheme];
+      });
+
+      // Network status indicator
+      window.addEventListener('online', () => {
+        console.log('Network connection restored');
+        // TODO: Add user-friendly toast notification
+      });
+
+      window.addEventListener('offline', () => {
+        console.warn('Network connection lost');
+        // TODO: Add user-friendly toast notification
+      });
+    </script>
+  </body>
+</html>

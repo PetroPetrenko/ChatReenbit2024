@@ -1,0 +1,146 @@
+.sidebar {
+  width: 450px;
+  height: 100vh;
+  background-color: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+.searchContainer {
+  padding: 15px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.searchInput {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.chatList {
+  flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e9ecef #f8f9fa;
+}
+
+.chatList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chatList::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+.chatList::-webkit-scrollbar-thumb {
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+.chatItem {
+  display: flex;
+  align-items: center;
+  padding: 18px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.chatItem:hover {
+  background-color: #f1f3f5;
+}
+
+.chatItem.active {
+  background-color: #e9ecef;
+  border-left: 4px solid #007bff;
+}
+
+.avatarContainer {
+  position: relative;
+  margin-right: 20px;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.onlineStatus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #28a745;
+  border: 2px solid #ffffff;
+}
+
+.chatInfo {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.chatName {
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lastMessage {
+  color: #6c757d;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.timestamp {
+  color: #6c757d;
+  font-size: 12px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: right;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.unreadCount {
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}

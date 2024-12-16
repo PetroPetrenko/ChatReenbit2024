@@ -7,19 +7,53 @@
 }
 
 .chatHeader {
-  padding: 16px 20px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .chatInfo {
   display: flex;
+  flex-direction: column;
+}
+
+.chatName {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.chatDetails {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  color: #666;
+}
+
+.participantsCount, 
+.chatDescription {
+  font-size: 0.9em;
+}
+
+.groupActions {
+  display: flex;
+  align-items: center;
+}
+
+.addParticipantBtn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.addParticipantBtn:hover {
+  background-color: #0056b3;
 }
 
 .userAvatar {
@@ -213,6 +247,31 @@
 .sendButton:disabled {
   background-color: #e5e7eb;
   cursor: not-allowed;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 5px;
+}
+
+.userLabel, .authorLabel, .botLabel {
+  font-size: 0.8em;
+  color: #666;
+  margin-right: 10px;
+  font-style: italic;
+}
+
+.userLabel {
+  color: #007bff;
+}
+
+.authorLabel {
+  color: #28a745;
+}
+
+.botLabel {
+  color: #dc3545;
 }
 
 /* Scrollbar styles */

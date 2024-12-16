@@ -1,70 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import styles from './GoogleLoginButton.module.css';
+import { toast } from 'react-toastify';
+import { BACKEND_URL, CLIENT_ID } from '../config';
+import useUserStore from '../stores/userStore';
 
 const GoogleLoginButton = () => {
-  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { setUser, clearUser } = useUserStore();
 
-  const handleLogin = async (googleUser) => {
+  const handleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
     try {
-      const idToken = googleUser.getAuthResponse().id_token;
-      const response = await fetch('http://localhost:3333/api/auth/google-login', {
+      console.log('Attempting Google Login with Credential:', {
+        clientId: credentialResponse.clientId,
+        credentialLength: credentialResponse.credential.length
+      });
+      
+      const response = await fetch(`${BACKEND_URL}/api/auth/google-login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: idToken }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          token: credentialResponse.credential  
+        }),
       });
-      const data = await response.json();
-      if (data.success) {
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
+
+      console.log('Response Status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Google login failed: ${errorText || 'Unknown error'}`);
       }
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  };
 
-  const handleLogout = () => {
-    const auth2 = window.gapi.auth2.getAuthInstance();
-    auth2.signOut().then(() => {
-      setUser(null);
-      localStorage.removeItem('user');
-    });
-  };
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-
-    window.gapi.load('auth2', () => {
-      window.gapi.auth2.init({
-        client_id: '961833498122-f0b6rumpnh607lengqthmd4cvks7ag8q.apps.googleusercontent.com',
-      }).then(() => {
-        window.gapi.signin2.render('google-signin-button', {
-          scope: 'profile email',
-          width: 240,
-          height: 50,
-          longtitle: true,
-          theme: 'dark',
-          onsuccess: handleLogin,
-        });
+      const userData = await response.json();
+      
+      // Store user information in global state and local storage
+      setUser(userData.user);
+      localStorage.setItem('user', JSON.stringify(userData.user));
+      localStorage.setItem('token', userData.token);
+      
+      // Notify user of successful login
+      toast.success('Logged in successfully', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
+      // Optional: Redirect or update app state
+      // window.location.href = '/dashboard';
+    } catch (error) {
+      // Clear any existing user data on error
+      clearUser();
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+
+      console.error('Google Login Error Details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+
+      toast.error(`Login failed: ${error.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        type: "error"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleError = (errorResponse) => {
+    console.error('Google Login Initial Error:', errorResponse);
+    toast.error('Google Login Failed. Please try again.', {
+      position: "top-right",
+      autoClose: 5000,
+      type: "error"
     });
-  }, []);
+  };
 
-  if (user) {
-    return (
-      <div className={styles.userContainer}>
-        <img src={user.picture} alt="Profile" className={styles.profilePic} />
-        <span className={styles.userName}>{user.name}</span>
-        <button onClick={handleLogout} className={styles.logoutButton}>
-          Logout
-        </button>
+  return (
+    <GoogleOAuthProvider clientId={CLIENT_ID}>
+      <div className={styles.googleLoginContainer}>
+        {isLoading ? (
+          <div className={styles.loadingSpinner}>Loading...</div>
+        ) : (
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={handleError}
+            useOneTap
+            type="standard"
+            theme="filled_blue"
+            size="large"
+            text="signin_with"
+            shape="rectangular"
+            disabled={isLoading}
+          />
+        )}
       </div>
-    );
-  }
-
-  return <div id="google-signin-button" className={styles.signInButton}></div>;
+    </GoogleOAuthProvider>
+  );
 };
 
 export default GoogleLoginButton;

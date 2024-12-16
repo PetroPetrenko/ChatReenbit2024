@@ -3,7 +3,6 @@ import { socketUrl } from './config/host.config';
 
 const SOCKET_URL = socketUrl;
 
-
 export const socket = io(SOCKET_URL, {
   autoConnect: true,
   reconnection: true,

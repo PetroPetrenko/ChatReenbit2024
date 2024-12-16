@@ -10,7 +10,7 @@ const hostConfig = {
     },
     backend: {
       host: 'localhost',
-      port: 3001,
+      port: 3333,
       protocol: 'http',
       get url() {
         return `${this.protocol}://${this.host}:${this.port}`;
@@ -19,14 +19,14 @@ const hostConfig = {
   },
   production: {
     frontend: {
-      host: import.meta.env.VITE_FRONTEND_URL || 'https://chat-reenbit2024-9pdv.vercel.app/',
+      host: import.meta.env.VITE_FRONTEND_URL || 'your-frontend-url.vercel.app',
       protocol: 'https',
       get url() {
         return `${this.protocol}://${this.host}`;
       }
     },
     backend: {
-      host: import.meta.env.VITE_API_URL || 'https://chat-reenbit2024-tgnx.vercel.app/?vercelToolbarCode=EZEXpaz28BjDgFp',
+      host: import.meta.env.VITE_API_URL || 'your-backend-url.vercel.app',
       protocol: 'https',
       get url() {
         return `${this.protocol}://${this.host}`;

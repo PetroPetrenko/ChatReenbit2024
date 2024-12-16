@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, formatDistance, subDays } from 'date-fns';
 import { toast } from 'react-toastify';
 import { useChatStore } from '../../store/chatStore';
 import styles from './ChatList.module.css';
@@ -114,15 +114,23 @@ const ChatList = () => {
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const response = await fetch(`${apiUrl}/api/chats`);
+        const response = await fetch(`${apiUrl}/api/chats`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
         if (!response.ok) {
-          throw new Error('Failed to fetch chats');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         const data = await response.json();
         setChats(data);
       } catch (error) {
         console.error('Error fetching chats:', error);
-        toast.error('Failed to load chats');
+        toast.error('Не удалось загрузить чаты. Проверьте подключение к серверу.');
       }
     };
 
@@ -168,22 +176,27 @@ const ChatList = () => {
               <div className={styles.lastMessage}>
                 {chat.lastMessage || 'No messages yet'}
               </div>
+              <div className={styles.chatDate}>
+                {chat.lastMessageDate 
+                  ? formatDistance(new Date(chat.lastMessageDate), new Date(), { addSuffix: true }) 
+                  : ''}
+              </div>
             </div>
-            <div className={styles.chatDate}>
-              {chat.lastMessageDate ? format(new Date(chat.lastMessageDate), 'MMM d, yyyy') : ''}
+           
+            <div className={styles.buttonContainer}>
+              <button
+                className={`${buttonStyles.button} ${buttonStyles.secondary}`}
+                onClick={(e) => { e.stopPropagation(); setSelectedChat(chat); setShowDialog(true); }}
+              >
+                Edit
+              </button>
+              <button
+                className={`${buttonStyles.button} ${buttonStyles.danger}`}
+                onClick={(e) => { e.stopPropagation(); handleConfirmDelete(chat); }}
+              >
+                Delete
+              </button>
             </div>
-            <button
-              className={`${buttonStyles.button} ${buttonStyles.secondary}`}
-              onClick={(e) => { e.stopPropagation(); setSelectedChat(chat); setShowDialog(true); }}
-            >
-              Edit
-            </button>
-            <button
-              className={`${buttonStyles.button} ${buttonStyles.danger}`}
-              onClick={(e) => { e.stopPropagation(); handleConfirmDelete(chat); }}
-            >
-              Delete
-            </button>
           </div>
         ))}
       </div>
